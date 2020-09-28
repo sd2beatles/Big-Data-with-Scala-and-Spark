@@ -1,4 +1,4 @@
-# Chapter 1. Introduction to Core Concepts
+# Part 1. Introduction to Core Concepts
 
 ## 1. Introudction to Core Spark Concepts
 
