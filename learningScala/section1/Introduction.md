@@ -46,11 +46,38 @@ the map operation on a cluster, different machines might impose a defined functi
 
 
 Let's run a simple code to count the number of items in our dataset,RatingsCounter.
-
 ```Spark
 
+import org.apache.spark._
+import org.apache.log4j._
 
-
+object RatingsCounter {
+  
+  def main(args:Array[String]){
+    //Set the log level to print errors
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    
+    //Create a SparkContext to access Spark
+    val sc=new SparkContext("local[*]","RatingCounter")
+    
+    //Load each line of words into an RDD
+    val lines=sc.textFile("../u.data")
+    
+    //Convert each line to a string,split it out by tabs,and extract the third field.
+    //Note that the columns consist of userID,movieID,rating,timestamp
+    var ratings=lines.map(x=>x.split("\t")(2))
+    
+    //Count up many times each value(rating) occurs
+    var results=ratings.countByValue()
+    
+    //Sort the resulting map of (rating,counts) tuples
+    val sortedValues=results.toSeq.sortBy(_._1)
+    
+    //Print out each result on its own line
+    sortedValues.foreach(println)
+  }
+  
+}
 ```
 
 
