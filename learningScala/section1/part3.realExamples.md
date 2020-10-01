@@ -25,6 +25,8 @@ object RatingsCounter {
    //then we use reduceByKey to sum up the total numFriends and total instances for each age
    //by adding together all the numbFriedns values and 1's respectively
    //remember our objective here is to compute the average number of people for each group 
+   //reduceByKey is one of "transfomration" types; when called on the dataset of key,value paired
+   //returns the values for each key are aggreated!
    val totalsByAge=rdd.mapValues(x=>(x,1)).reduceByKey((x,y)=>(x._1+y._1,x._2+y._2))
    val averageByAge=totalsByAge.mapValues(x=>x._1/x._2)
    val results=averageByAge.collect()
