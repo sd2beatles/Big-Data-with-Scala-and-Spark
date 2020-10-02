@@ -1,4 +1,5 @@
-Objective:
+### Objective:
+
 Extrac every word in the following text file and count the number of occureance of it. 
 
 ```scala
