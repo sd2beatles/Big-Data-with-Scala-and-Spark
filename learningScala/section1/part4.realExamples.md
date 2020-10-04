@@ -7,7 +7,7 @@
 ### Code:
 
 ```scala
-
+import scala.math.min
 def parseLine(line:String)={
   val fields=line.split(",")
   val stationID=fields(0)
