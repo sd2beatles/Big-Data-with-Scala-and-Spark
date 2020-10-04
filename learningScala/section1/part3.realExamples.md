@@ -4,7 +4,7 @@
 
 Objective : Compute the average number of friends by age 
 
-```spark
+```scala
 object RatingsCounter {
   
   def parseLine(line:String):(Int,Int)={
