@@ -12,7 +12,7 @@ useful to get back to the low level for the best optimization for simpler proble
 Since the release of Spark2, a majority of work is mostly done through the SparkSQL interface in Apache Spark. 
 One of the fine features of SparkSQL is to offer a very efficient and easy to use a solution for getting  the answer you want across an entire cluster.
 
-###2. Steps to Use Spark SQL
+### 2. Steps to Use Spark SQL
 
 If you decide to use SparkSQL or Datasets, you need first to have SparkSession which is rather similar to a database session in the relational 
 database. Once you have that session, you can actually get a Sparkcontextr from it and use that to issue actual queries on your datasets.
