@@ -1,7 +1,9 @@
-### Objective :
+### 1.Objective :
 
 Load the data named "fakefriends.csv" and print out all the infromation including uniqueID,age,and number of friends. Make sure that
 our focus is centered on those aged between 13 and 19. 
+
+### 2. Code
 
 ```scala
 
@@ -34,3 +36,7 @@ object RatingsCounter {
   
 
 ```
+### 3. Output
+
+![image](https://user-images.githubusercontent.com/53164959/95015669-2078b580-0689-11eb-9628-ff511d3390ff.png)
+
