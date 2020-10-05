@@ -46,7 +46,7 @@ the map operation on a cluster, different machines might impose a defined functi
 
 
 Let's run a simple code to count the number of items in our dataset,RatingsCounter.
-```Spark
+```Scala
 
 import org.apache.spark._
 import org.apache.log4j._
