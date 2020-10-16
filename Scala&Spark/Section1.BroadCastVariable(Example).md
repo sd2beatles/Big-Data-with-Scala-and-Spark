@@ -21,9 +21,9 @@ Second, as metioned previously, movie ids are given only to find that they are n
 
 - Broadcast variables allow the programmer to keep a readable only variable cached on each machine rather than shipping a cop of it with tasks.
 
--They can bed used,for example,to give everynode a copy of a large input dataset in an efficient manner
+- They can bed used,for example,to give everynode a copy of a large input dataset in an efficient manner
 
--All broadcast variables will be kept at all the worker nodes for use in one or more spark operations. 
+- All broadcast variables will be kept at all the worker nodes for use in one or more spark operations. 
 
 2)What problems you might encouter if you were not using broadcast variables?
 
