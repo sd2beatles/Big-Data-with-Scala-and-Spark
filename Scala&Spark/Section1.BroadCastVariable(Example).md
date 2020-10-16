@@ -27,18 +27,60 @@ Second, as metioned previously, movie ids are given only to find that they are n
 
 2)What problems you might encouter if you were not using broadcast variables?
 
-- Spark automaticallu sends all variables referenced in our closures to the worker nodes.While this is convenient, it can also be inefficient beacasue 
-  the default taks launching mechanism is optimized for small task sizes
+- Spark automatically sends all variables referenced in our closures to the worker nodes.While this is convenient, it can also be inefficient beacasue 
+  the default tasks launching mechanism is optimized for small task sizes
   
 - We can potentially use the same variable in mutiple parallel operations, but spark will send it separately for each opertion. This can lead to a 
- serious performance issue if the size of data to transfer is significant. For example, let's say we had a large dictionary coating information on
+ serious performance issue if the size of data to transfer is significant. For example, let's say we had a large dictionary containing information on
  region and address. The size of the dicitonary is normally at least mega byte or even greater. To transfer it from master alongside the task is undobtedly expensieve.
- Also, if we wish to use the same dictionary later, the same dictionary would be sent again to each node.
-
+ Also, if we wish to use the same dictionary later, the same dictionary would be sent again to each node. 
+ 
+ _"The bottom line is that we can use forward(ship off) an object to every executor within our cluster by using broadcast variable and retrive and use it
+   as needed!"_
 
 
  ## 2.code
+```scala
 
+import org.apache.spark._
+import org.apache.spark.SparkContext._
+import org.apache.log4j._
+import org.apache.spark.sql._
+import org.apache.spark.sql.functions._
+//import org.apache.spark.sql.types.{FloatType,IntegerType,StringType,StructType}
+import org.apache.spark.sql.types.{FloatType,IntegerType,StringType,StructType}
+import org.apache.spark.sql.types.{DoubleType,IntegerType,StringType,StructType}
+
+//stationID,itemID,value
+
+object RatingsCounter {
+  case class Customer(stationID:Int,itemID:Int,amount:Float)
+ 
+  def main(args:Array[String]){
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val spark=SparkSession
+              .builder
+              .master("local[*]")
+              .getOrCreate()
+    val schema=new StructType()
+              .add("stationID",IntegerType,nullable=true)
+              .add("itemID",IntegerType,nullable=true)
+              .add("amount",FloatType,nullable=true)
+    import spark.implicits._
+    val ds=spark.read
+          .schema(schema)
+          .csv("../customer-orders.csv")
+          .as[Customer]
+     val purchase=ds.groupBy("stationID").agg(round(sum("amount"),2).alias("total"))
+     val sorted=purchase.sort("total")
+     sorted.show()
+    
+   }
+   
+}
+  
+
+```
 
 
 
