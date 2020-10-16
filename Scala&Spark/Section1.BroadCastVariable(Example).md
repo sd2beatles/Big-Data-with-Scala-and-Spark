@@ -42,43 +42,64 @@ Second, as metioned previously, movie ids are given only to find that they are n
  ## 2.code
 ```scala
 
-import org.apache.spark._
-import org.apache.spark.SparkContext._
+
+import org.apache.spark.sql.SparkSession
 import org.apache.log4j._
 import org.apache.spark.sql._
-import org.apache.spark.sql.functions._
-//import org.apache.spark.sql.types.{FloatType,IntegerType,StringType,StructType}
-import org.apache.spark.sql.types.{FloatType,IntegerType,StringType,StructType}
-import org.apache.spark.sql.types.{DoubleType,IntegerType,StringType,StructType}
+import org.apache.spark.sql.functions.{col,udf}
+import org.apache.spark.sql.types.{LongType,IntegerType,StructType}
+import scala.io.{Codec,Source}
 
 //stationID,itemID,value
 
-object RatingsCounter {
-  case class Customer(stationID:Int,itemID:Int,amount:Float)
+object MovieCounts {
+  case class Movies(userID:Int,movieID:Int,rating:Int,timestamp:Long)
  
-  def main(args:Array[String]){
-    Logger.getLogger("org").setLevel(Level.ERROR)
-    val spark=SparkSession
-              .builder
-              .master("local[*]")
-              .getOrCreate()
-    val schema=new StructType()
-              .add("stationID",IntegerType,nullable=true)
-              .add("itemID",IntegerType,nullable=true)
-              .add("amount",FloatType,nullable=true)
-    import spark.implicits._
-    val ds=spark.read
-          .schema(schema)
-          .csv("../customer-orders.csv")
-          .as[Customer]
-     val purchase=ds.groupBy("stationID").agg(round(sum("amount"),2).alias("total"))
-     val sorted=purchase.sort("total")
-     sorted.show()
+
     
-   }
-   
-}
-  
+   /** Load up a map of movie IDs to movie names.*/
+   /**Define a method called loadMoiveNames with no parameters but returns Map function **/
+    def loadMovieNames():Map[Int,String]={
+      //Handle character encoding issues
+      implicit val codedc:Codec=Codec("ISO-8859-1")
+      //Create a Map of Ints to Strings, and populate it from u.item
+      var movieNames:Map[Int,String]=Map()
+      val lines=Source.fromFile("../ml-100k/u.item")
+      for(line<-lines.getLines()){
+        val fields=line.split('|')
+        if(fields.length>1){
+          movieNames+=(fields(0).toInt->fields(1))
+          }
+         }
+      lines.close()
+      movieNames
+      }
+ 
+    def main(args:Array[String]){
+      //Set the log level to only print error
+      Logger.getLogger("org").setLevel(Level.ERROR)
+      val spark=SparkSession
+                .builder
+                .appName("PopularMovies")
+                .master("local[*]")
+                .getOrCreate()
+      val nameDict=spark.sparkContext.broadcast(loadMovieNames())
+      
+      val movieSchema=new StructType()
+                      .add("userID",IntegerType,nullable=true)
+                      .add("movieID",IntegerType,nullable=true)
+                      .add("rating",IntegerType,nullable=true)
+                      .add("timeStamp",LongType,nullable=true)
+      
+     import spark.implicits._
+     val movies=spark.read
+                 .option("sep","\t")
+                .schema(movieSchema)
+                .csv("C:/SparkScala/SparkScalaCourse/ml-100k/u.data")
+                .as[Movies] 
+                
+       }
+   }           
 
 ```
 
@@ -88,15 +109,17 @@ object RatingsCounter {
 
 
 
-## 3.Useful Tips
+## 3.Code Explantions and Tips
 
 1) UDF and BroadCast
+
+
 Right after couting the number of frequencies for each movieID,now we need a way to  actually transform those movie ids into movie names within our Dataset.
 This could be all done at the output state;We could possibly iterate the resulting Dataset that we got back and look up those movie names back on the driver 
 script locally when are actually printing the results.
 
 However, we wish to illustrate the use of UDFs and broadCast here we want to distribute within the cluster itself. So for every excutor, they are responbsible for some
-subset of the data. They will individually be looking ta the movie titles for movie ids they are resoponsible for.
+subset of the data. They will individually be looking at the movie titles for movie ids they are resoponsible for.
 
 First, we need to set up a Dataset to create a new column using this function to generate that column's data.We are basically defning an inline function here. 
 
@@ -105,20 +128,25 @@ val lookupName :Int=>String=(movieID:Int)=>{nameDict.value(movieID)}
 
 ```
 We first define the name of function, lookupName. Take an integer and return the lookup of the name dictionary given that movie id
-Note that nameDict is a broadCast variable not the actual map.To get a map object, we have to call .value on it to retrieve the nameDict's object. That is,
-to get a content, we ned to call value on it. 
+Note that nameDict is a broadCast variable not the actual map. In order to retrieve the nameDict's object, we have to call .value on it. That is,to get a content, we need to call value on it. 
 
-Second, we nned to wrap it with a udf
+Second, we need to wrap the user-defined function with udf,which allows us to **_use it in a SQL setting_**.
 
 ```scala
 val lookupNameUDF=udf(lookupName)
 ```
-This user defnied function can be used in a SQL setting.
 
+Third, all the previous steps enables us to create an additional column named "movieTitle". The contents of this newly created column are
+generated by udf function we have defined with the proper chosen parameter which is "movieID" in our example.
+
+```scala
+
+val movieWithNames=movieCounts.withColumn("movieTitle",lookupNameUDF(col("movieID")))
+```
 
 2)truncate 
 
-we set up the trunacte argument  to false toprevent it from actually truncating the length of each individual row. Otherwise,it would chop off some of length
+we set up the trunacte argument  to false to prevent it from actually truncating the length of each individual row. Otherwise,it would chop off some of length
 of movie name to fit within a given row width.
 
 
