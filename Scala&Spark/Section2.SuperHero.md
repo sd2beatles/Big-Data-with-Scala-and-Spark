@@ -80,16 +80,12 @@ object PopularMovie {
    
 }
 }
-
-
-
-
-
-
-
-
-
-
 ```
+
+# 5.Output
+
+
+![image](https://user-images.githubusercontent.com/53164959/96327800-b8a66f80-1077-11eb-8107-a4f170124a1a.png)
+
 
 
