@@ -15,7 +15,7 @@ appeared with in other comic books.
 The other dataset is comprised of herodIDs followed by a quotation mark enclosed name that coresponds to that hero ID.
 
 
-# 3. Objective
+# 3. Steps to achieve the goal
 
 - Split off hero ID from begining of line
 
