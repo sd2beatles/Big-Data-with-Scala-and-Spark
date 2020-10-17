@@ -31,10 +31,55 @@ The other dataset is comprised of herodIDs followed by a quotation mark enclosed
 # 4. code
 
 ```scala
+import org.apache.spark.sql.SparkSession
+import org.apache.log4j._
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{IntegerType,StringType,StructType}
 
 
 
-
+object PopularMovie {
+ case class SuperHeroName(id:Int,name:String)
+ case class SuperHero(value:String)
+  
+  def main(args:Array[String]){
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val spark=SparkSession
+              .builder
+              .appName("Most PopularSuperHero")
+              .master("local[*]")
+              .getOrCreate()
+    val schema=new StructType()
+               .add("id",IntegerType,nullable=true)
+               .add("name",StringType,nullable=true)
+    
+   import spark.implicits._
+   val names=spark.read
+               .schema(schema)
+               .option("sep"," ")
+               .csv("../Marvel-names.txt")
+               .as[SuperHeroName]
+   
+    val lines=spark.read
+             .text("../Marvel-graph.txt")
+             .as[SuperHero]
+    
+    val connections=lines
+                    .withColumn(colName="id",split(col("value")," ")(0))
+                    .withColumn("connection",size(split(col("value")," "))-1)
+                    .groupBy("id").agg(sum("connection").alias("connection"))
+    
+    val mostPopular=connections
+                    .sort($"connection".desc)
+                    .first()
+    
+     val mostPopularName=names.filter($"id"===mostPopular(0))
+                              .select("name")
+                              .first()
+     println(s"${mostPopularName(0)} is the most popular superhero with ${mostPopular(1)} co-appearance")
+   
+}
+}
 
 
 
