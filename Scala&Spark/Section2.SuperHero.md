@@ -29,6 +29,7 @@ The other dataset is comprised of herodIDs followed by a quotation mark enclosed
 
 
 # 4. code
+### 1) Dataset Approach
 
 ```scala
 import org.apache.spark.sql.SparkSession
@@ -80,6 +81,64 @@ object PopularMovie {
    
 }
 }
+```
+
+### 2) RDD approach
+
+```scala
+
+
+
+import org.apache.spark.sql.SparkSession
+import org.apache.log4j._
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{IntegerType,StringType,StructType}
+
+//stationID,itemID,value
+
+object RatingsCounter {
+  
+
+  def countOccurences(line:String):(Int,Int)={
+    val fields=line.split("\\s+")
+    (fields(0).toInt,fields.length-1)
+  }
+ 
+  def parseNames(line:String):Option[(Int,String)]={
+    val fields=line.split('\"')
+    if(fields.length>1){
+    Some(fields(0).trim().toInt,fields(1))
+    }else None
+  }
+
+
+  case class Heros(id:String)
+  case class HeroNames(id:Int,name:String)
+  
+  def main(args:Array[String]){
+    Logger.getLogger("org").setLevel(Level.ERROR)
+    val sc=new SparkContext("local[*]","mostPopularMovies")
+    val names=sc.textFile("../marvel-names.txt")
+    val namesRDD=names.flatMap(parseNames)
+    
+    val lines=sc.textFile("../marvel-graph.txt")
+    val pairings=lines.map(countOccurences)
+    val totalFriendsByCharacter=pairings.reduceByKey((x,y)=>x+y)
+    val flipped=totalFriendsByCharacter.map(x=>(x._2,x._1))
+    //find the maxium number based on the first element
+    val mostPopular=flipped.max()
+    val mostPopularName=namesRDD.lookup(mostPopular._2).head
+    val mostPopularId=mostPopular._2
+    println(s"$mostPopularName ($mostPopularId)")
+  }
+  
+   }
+
+
+
+
+
 ```
 
 # 5.Output
