@@ -44,12 +44,14 @@ map() takes in a function and applies to each element in the RDD with the reult 
 flatmap() is found especially useful if we wish to produce multiple outcomes for a given element.
 
 - common feature with map()
+
 map and flatmap() are all called individually for each element
 
 - distinct features
-1) Instead of returing a single element,it returns a generator with returned values.
-2) Rathern than producing a RDD of iterator, we get back an RDD that consists of the elements from all the iterators.
-  
+
+Instead of returing a single element as an output, the flatMap generates an resutling RDD with zero,one,or more elemtns .In this sense, the lenght of Input RDD and that of Output may not be same for all time.By using flatMap(),the progrmammer can implement thier own logic which can  be applied on all data of an RDD.
+
+
 ```spark
  def main(args:Array[String]){
    Logger.getLogger("org").setLevel(Level.ERROR)
