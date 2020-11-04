@@ -1,7 +1,7 @@
 # Part 2. Programming with RDDs
 
 ## 1.Transformation 
-Transformation: Create a slight modified RDD from the previosu one by implemeting a funcito such as filter,map and so on
+Transformation: Create a slight modified RDD from the previous one by implemeting a function such as filter,map and so on
 
 ### 1.1 filter
 
@@ -141,7 +141,7 @@ warningRDD.take(10).foreach(println)
 
 ### 2.3 collect
 
-RDD also has a special feature fucniton,collect() to retrieve the entire RDD. But pay an extra attenion before using it. Your data set must fit in memory
+RDD also has a special feature fucniton,collect() to _retrieve the entire RDD_. But pay an extra attenion before using it. Your data set must fit in memory
 on single machine to use collect() on it, so it is not recommendable to use a collect() on lage dataset.
 
 
