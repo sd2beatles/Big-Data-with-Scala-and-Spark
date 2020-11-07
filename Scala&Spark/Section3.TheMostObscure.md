@@ -60,3 +60,8 @@ object obscureHeroes {
 }
   
 ```
+
+### 4. Results
+
+![image](https://user-images.githubusercontent.com/53164959/98439040-24896e80-2132-11eb-8c8f-bb9ac6b0687c.png)
+
