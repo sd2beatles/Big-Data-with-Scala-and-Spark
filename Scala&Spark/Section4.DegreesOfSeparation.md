@@ -47,6 +47,23 @@ going to revisit it in the future. We find the connections of the gray(s) and re
  
 ```
 
--
- 
+- type 
+
+type alias are often used to keep the rest of the code simple. This helps to aovid defning many custom tpyes that are defined on other types.
+
+```scala
+type Customers=(String,Int,String,Boolean)=>String
+```
+we can use the alies in our method as follows
+
+```scala
+def doSomeThing(f:Customers)
+```
+
+which will be interpreted by the complier as 
+```scala
+def doSomething(f:(String,Int,String,Boolean)=>String)
+```
+
+- 
  
