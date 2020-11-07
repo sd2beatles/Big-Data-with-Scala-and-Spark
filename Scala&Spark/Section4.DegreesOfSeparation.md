@@ -23,3 +23,30 @@ going to revisit it in the future. We find the connections of the gray(s) and re
 
 
 ## 3.Strategy
+
+
+
+
+
+
+
+
+## 4. Tips to brush up Scala Skills
+
+ - Option[type] : 
+  
+  Option[T] is a container for one element of a given type or None object,which represents a missing value. For instnace, the get Method
+  of Scala produces some(value) if the value correspoding to a given key has been found or returns None if the key is not defined in the Map.
+  Conveniently,this option can prevent us from making a mistake of retrieving an element with a wrong _data type_ for a corresponding key.  
+  
+ ```scala
+ val list=Map("one"->1,"two"->2)
+ val result:Option[Int]=list.get("one") //No error occurs since the value we acquire matches to the type we sepcify
+ val result2:Option[Long]=list.get("one") // Error arises when none of the elements in the Map is compatible to the type(Integer)
+ val result3:Option[Int]=list.get("three")//The None is assiged to the variable,result3 where no value is found for the corresponding key. 
+ 
+```
+
+-
+ 
+ 
