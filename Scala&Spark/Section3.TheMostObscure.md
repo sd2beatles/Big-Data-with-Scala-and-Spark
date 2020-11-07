@@ -22,6 +22,10 @@ As for the methods to achieve the specified goal,we should follow the below step
 ### 3. Code
 
 ```scala
+import org.apache.spark.sql.SparkSession
+import org.apache.log4j._
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types.{IntegerType,LongType,StringType,StructType}
 
 
 object obscureHeroes {
