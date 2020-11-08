@@ -31,6 +31,9 @@ going to revisit it in the future. We find the connections of the gray(s) and re
 
 
 
+
+
+
 ## 4. Tips to brush up Scala Skills
 
  - Option[type] : 
@@ -65,5 +68,61 @@ which will be interpreted by the complier as
 def doSomething(f:(String,Int,String,Boolean)=>String)
 ```
 
-- 
+
+
+### 6. Code
+
+```scala
+
+import org.apache.spark._
+import org.apache.spark.rdd._
+import org.apache.spark.util.LongAccumulator
+import org.apache.log4j._
+import scala.collection.mutable.ArrayBuffer
+
+object RatingsCounter {
+    
+   val startCharacterID:Int=5306
+   val targetCharacterID:Int=14
+   
+   var hitCounter:Option[LongAccumulator]=None
+   
+   //BFSData contains an array of hero ID connections,the distance,and color
+   type BFSData=(Array[Int],Int,String)
+   //A BFSNode has a heroID and the BFSData associated with it
+   type BFSNode=(Int,BFSData)
+   
+   /* Converts a line of raw input into a BFSNode*/
+   def convertToBFS(line:String):BFSNode={
+     //Split up the line into fields
+     val fields=line.split("\\s+")
+     //Extract this hero ID from  the first field
+     val heroID=fields(0).toInt
+     //Extracting subsequent hero ID's into the connection array
+     var connections:ArrayBuffer[Int]=ArrayBuffer()
+     for(connection<-1 until (fields.length-1)){
+         connections+=fields(connection).toInt
+     }
+     
+     //Default distance and color is 1999 and white,respectively
+     var color:String="White"
+     var distance:Int=9999
+     
+     if (heroID==startCharacterID){
+          color="Gray"
+          distance=0
+     }
+     
+     (heroID,(connections.toArray,distance,color))
+     
+   }
+   
+
+
+
+
+
+
+
+```
  
