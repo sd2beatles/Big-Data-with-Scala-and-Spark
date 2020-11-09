@@ -117,6 +117,46 @@ object RatingsCounter {
      
    }
    
+   
+   /*Expands a BFSNode into this node and its children*/
+  def bfsMap(node:BFSNode):Array[BFSNode]={
+    val characterID=node._1
+    val data=node._2
+    val connections:Array[Int]=data._1
+    val distance:Int=data._2
+    var color:String=data._3
+    
+    //This is called from flatMap,so we return an array
+    //of potentially many BFSNodes to add to our new RDD
+    var results:ArrayBuffer[BFSNode]=ArrayBuffer()
+    if(color=="Gray"){
+      for(connection<-connections){
+        val newCharacterID=connection
+        val newDistance=distance+1
+        val newColor="Gray"
+        
+     //Have we stumbled across the character we are looking for?
+     //If so increment our accumulator so the driver script knows
+     if(targetCharacterID==connection){
+       if(hitCounter.isDefined){
+         hitCounter.get.add(1)
+       }
+     }
+        
+    val newEntry:BFSNode=(newCharacterID,(Array(),newDistance,newColor))
+    results+=newEntry
+    }
+    //Color this node as black,indicating it has been processed alaready
+    color="BLACK"
+    }
+    //Add the original node back in, so its connections can get merged with
+    //the gray node in the reducer
+    val thisEntry:BFSNode=(characterID,(connections,distance,color))
+    results+=thisEntry
+    results.toArray
+    
+  }
+   
 
 
 
