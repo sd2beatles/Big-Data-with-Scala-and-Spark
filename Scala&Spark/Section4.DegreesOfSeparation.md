@@ -80,7 +80,9 @@ import org.apache.spark.util.LongAccumulator
 import org.apache.log4j._
 import scala.collection.mutable.ArrayBuffer
 
-object RatingsCounter {
+
+  
+object levelSeparation {
     
    val startCharacterID:Int=5306
    val targetCharacterID:Int=14
@@ -117,8 +119,7 @@ object RatingsCounter {
      
    }
    
-   
-   /*Expands a BFSNode into this node and its children*/
+  /*Expands a BFSNode into this node and its children*/
   def bfsMap(node:BFSNode):Array[BFSNode]={
     val characterID=node._1
     val data=node._2
@@ -154,15 +155,98 @@ object RatingsCounter {
     val thisEntry:BFSNode=(characterID,(connections,distance,color))
     results+=thisEntry
     results.toArray
+    }
+   
+  def createStartingRDD(sc:SparkContext):RDD[BFSNode]={
+    val inputFile=sc.textFile("../marvel-graph.txt")
+    inputFile.map(convertToBFS)
+  }
+   
+  def bfsReduce(data1:BFSData,data2:BFSData)={
+    //Extract data that we are combining
+    val edge1:Array[Int]=data1._1
+    val edge2:Array[Int]=data2._1
+    val distance1:Int=data1._2
+    val distance2:Int=data2._2
+    val color1:String=data1._3
+    val color2:String=data2._3
+    
+    //Default node values
+    var distance:Int=999
+    var color:String="White"
+    var edges:ArrayBuffer[Int]=ArrayBuffer()
+    
+    if(edge1.length>0){
+      //add elements of edge1 into the edge Array
+      edges++=edge1
+      }
+    if(edge2.length>0){
+      edges++=edge2
+    }
+    if(distance1<distance){
+      distance=distance1
+    }
+    if(distance2<distance){
+      distance=distance2
+    }
+    
+    //Preserve Darker Section
+    if((color1=="White")&&(color2=="Black"||color2=="Gray")){
+      color=color2
+    }
+    if((color1=="Gray"&&color2=="Black")){
+      color=color2
+    }
+    if((color2=="White")&&(color1=="Black"||color1=="Gray")){
+      color=color1
+    }
+    if((color2=="Gray"&&color1=="Black")){
+      color=color1
+    }
+    
+    if(color1=="Gray"&&color2=="Gray"){
+      color=color1
+    }
+    (edges.toArray,distance,color)
     
   }
    
-
-
-
-
-
-
+   
+  
+   def main(args:Array[String]){
+     Logger.getLogger("org").setLevel(Level.ERROR)
+     //Create a sparkContext
+     val sc=new SparkContext("local[*]","DegreeOfSeparation")
+     //Our accumulator used to signal when we find the target character in our BFS traversal
+     hitCounter=Some(sc.longAccumulator(name="Hit Counter"))
+   
+    //Create an initial condition of our graph
+     var iterationRDD=createStartingRDD(sc)
+     //pick up the arbitrary upper bound,says 10 in our case.
+     for(iteration<-1 to 10){
+       println("Running BFS Iteration#"+iteration)
+       //Create new verticies as needed to darken or reduce distances in the reduce range
+       //If we encouter the node we are looking for as a Gray Node,increment our accumulator to signal
+       //that we are done. 
+       val mapped=iterationRDD.flatMap(bfsMap)
+       //Note that mapped.count() action here forces the RDD to be evaluated and that 
+       //is the only reason our accumulator is actually updated
+       println("Processing"+mapped.count()+"values.")
+       
+       if(hitCounter.isDefined){
+        val hitCount=hitCounter.get.value
+        if(hitCount>0){
+          println("Hit the target Character!From"+hitCount+"different directions(s)")
+          return 
+        }
+       }
+       
+       //Reducer combines data for each character ID,preserving the darkest color and shortest path
+       iterationRDD=mapped.reduceByKey(bfsReduce)
+       
+     }
+   }
+}
 
 ```
  
