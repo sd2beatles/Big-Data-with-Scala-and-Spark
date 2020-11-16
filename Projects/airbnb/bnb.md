@@ -1,26 +1,4 @@
-```scala
 
-def main(args:Array[String]){
-     Logger.getLogger("org").setLevel(Level.ERROR)
-     val spark=SparkSession
-               .builder
-               .appName("airbnb")
-               .master("local[*]")
-               .getOrCreate()
-    import spark.implicits._
-    var df=spark.read
-          .options(Map("inferSchema"->"true","delimeter"->",","header"->"true"))
-          .csv("../airbnb.csv")
-    df.printSchema()
-    //drop any rows which have null values only in the first two columns
-   df.na.drop("all",Seq("average_rate_per_night","bedrooms_count"))
-   df=df.withColumn("average_rate",regexp_replace($"average_rate_per_night","\\W+",""))
-   df.printSchema()
-   val toInt=udf[Int,String](_.toInt)
-   df=df.withColumn("average_rate",toInt(col("average_rate")))
-   df.printSchema()
-   }
- ```
 ```scala
 
 
@@ -43,12 +21,13 @@ def main(args:Array[String]){
    val toLong=udf[Long,String](_.toLong)
    val roomStatus=udf[String,String]{x:String=> if(x=="Studio") "0" else x}
    df=df.withColumn("average_rate",regexp_replace($"average_rate_per_night","\\W+",""))
-        .withColumn("average_rate",toLong($"average_rate"))
+        .withColumn("average_rate",($"average_rate").toCast(FloatType))
         .withColumn("bedrooms",roomStatus($"bedrooms_count"))
         .filter($"city"==="Austin")
-    
-   val df_s=df.select("average_rate","city","bedrooms")
-   
-
+        .select("bedrooms","average_rate")
+        .filter($"bedrooms"=!="null")
+        
+  val result=df.groupBy("bedrooms").agg(round(mean("average_rate"),2).alias("average_price_per_night($)"))
+  result.show()
 
 ```
