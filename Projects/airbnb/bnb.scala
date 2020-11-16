@@ -1,5 +1,4 @@
 
-```scala
 
 
    def main(args:Array[String]){
@@ -30,4 +29,4 @@
   val result=df.groupBy("bedrooms").agg(round(mean("average_rate"),2).alias("average_price_per_night($)"))
   result.show()
 
-```
+
