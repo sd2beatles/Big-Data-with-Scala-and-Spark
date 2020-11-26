@@ -50,56 +50,72 @@ import org.apache.spark.sql.functions.{col,udf}
 import org.apache.spark.sql.types.{LongType,IntegerType,StructType}
 import scala.io.{Codec,Source}
 
-//stationID,itemID,value
+import org.apache.log4j._
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.functions.{col,udf}
+import scala.io.{Codec,Source}
+import org.apache.spark.sql.types.{StructType,IntegerType,LongType,StringType}
+object ratingCounters {
 
-object MovieCounts {
-  case class Movies(userID:Int,movieID:Int,rating:Int,timestamp:Long)
- 
+  case class Movies(userID: Int, movieID: Int, rating: Int, timestamp: Long)
 
-    
-   /** Load up a map of movie IDs to movie names.*/
-   /**Define a method called loadMoiveNames with no parameters but returns Map function **/
-    def loadMovieNames():Map[Int,String]={
-      //Handle character encoding issues
-      implicit val codedc:Codec=Codec("ISO-8859-1")
-      //Create a Map of Ints to Strings, and populate it from u.item
-      var movieNames:Map[Int,String]=Map()
-      val lines=Source.fromFile("../ml-100k/u.item")
-      for(line<-lines.getLines()){
-        val fields=line.split('|')
-        if(fields.length>1){
-          movieNames+=(fields(0).toInt->fields(1))
-          }
-         }
-      lines.close()
-      movieNames
+  def loadMovieNames(): Map[Int, String] = {
+    implicit val codec: Codec = Codec("ISO-8859-1")
+    var movieNames: Map[Int, String] = Map()
+    val lines = Source.fromFile("C:/SparkScalaCourse/SparkScalaCourse/data/ml-100k/ml-100k/u.item")
+    for (line <- lines.getLines()) {
+      val fields = line.split("|")
+      if (fields.length > 1) {
+        movieNames += (fields(0).toInt -> fields(1))
       }
- 
-    def main(args:Array[String]){
-      //Set the log level to only print error
+    }
+    lines.close()
+    movieNames
+  }
+
+
+    def main(args: Array[String]): Unit = {
       Logger.getLogger("org").setLevel(Level.ERROR)
-      val spark=SparkSession
-                .builder
-                .appName("PopularMovies")
-                .master("local[*]")
-                .getOrCreate()
-      val nameDict=spark.sparkContext.broadcast(loadMovieNames())
-      
-      val movieSchema=new StructType()
-                      .add("userID",IntegerType,nullable=true)
-                      .add("movieID",IntegerType,nullable=true)
-                      .add("rating",IntegerType,nullable=true)
-                      .add("timeStamp",LongType,nullable=true)
-      
-     import spark.implicits._
-     val movies=spark.read
-                 .option("sep","\t")
-                .schema(movieSchema)
-                .csv("C:/SparkScala/SparkScalaCourse/ml-100k/u.data")
-                .as[Movies] 
-                
-       }
-   }           
+      val spark = SparkSession
+        .builder
+        .appName("popularMovies")
+        .master("local[*]")
+        .getOrCreate()
+
+      val nameDict = spark.sparkContext.broadcast(loadMovieNames())
+      val movieSchema = new StructType()
+        .add("userID", IntegerType, nullable = true)
+        .add("movieID", IntegerType, nullable = true)
+        .add("rating", IntegerType, nullable = true)
+        .add("timestamp", LongType, nullable = true)
+
+
+      import spark.implicits._
+      val movies = spark
+        .read
+        .option("sep", "\t")
+        .schema(movieSchema)
+        .csv("C:/SparkScalaCourse/SparkScalaCourse/data/ml-100k/ml-100k/u.data")
+        .as[Movies]
+
+      //Get number of reviews per moiveID
+      val movieCounts = movies.groupBy("movieID").count()
+
+      //Declare an anonymous function
+      val lookupName: Int => String = (movieID: Int) => {
+        nameDict.value(movieID)
+      }
+      //wrap it with a udf to prevent not serializable errors from arising
+      val lookupNameUDF = udf(lookupName)
+      val moviesWithNames = movieCounts.withColumn("movieTitle", lookupNameUDF(col("movieID")))
+      val moviesSorted = moviesWithNames.sort("count")
+
+      //show the results withouth truncating it
+      moviesSorted.show(moviesSorted.count.toInt, truncate = false)
+    }
+  }
+  
 
 ```
 
