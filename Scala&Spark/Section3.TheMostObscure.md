@@ -1,7 +1,7 @@
 ### 1. Objective
 
 In this seciton,we still use the same dataset from the previous section,but are to find out the list of heros who are deemed to be
-the most obscure. The word "obscure" can be interepreted in diffrent ways and narrowing it to our case only, it means anyone with the only one conneciton.
+the most obscure. The word "obscure" can be interepreted in diffrent ways and narrowing it to our case only, it means anyone with only one conneciton.
 
 
 ### 2. Strategy
