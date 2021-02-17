@@ -1,7 +1,8 @@
-## Aggregations   _______________________________________:black_nib:
+## Aggregations  
 
 
-### 1. Introduction
+### 1. Introduction  _______________________________________:black_nib:
+
 Aggregation is the act of collecing something together and its type further divides into the following types
 
 - _group by_ allows you to specify one or more keys as well as one or more aggregation functions to transform the value
@@ -21,7 +22,7 @@ Aggregation is the act of collecing something together and its type further divi
 
 
   
-### 2.Types 
+### 2.Types  _______________________________________:black_nib:
 
 #### 2.1 Aggregation Functions
 
@@ -99,7 +100,42 @@ df.groupBy("InvoiceNo").agg("Quantity"->"avg", "Quantity"->"stddev_pop").show()
 ```
 
 
-### 2.2  Window Function 
+### 2.2  Window Function - case study
+
+
+![image](https://user-images.githubusercontent.com/53164959/108184939-185c7680-714f-11eb-9942-d1ab7511194e.png)
+
+We first create an extra column for which our invoice data is coverted into a column that contains data information. 
+
+:heavy_exclamation_mark:
+As for spark 3.0 version, in parsing date using to_date(), you will be more likely to see the Legacy related exception. Then You need to add an extra line to cope with this issue. 
+
+```scala
+//spark is the SparkSession obeject
+ spark.sql("set spark.sql.legacy.timeParserPolicy=LEGACY")
+ val df_date = df.withColumn("date", to_date(col("InvoiceDate"), "MM/d/yyyy H:mm"))
+ 
+ ```
+ 
+ Now,we need some codes to break up our group and the ordering within a given partition is arragnged in a decremental manner.Finally, the frame specification states which rows will be included in the frame based on
+ the reference to the current input row. 
+ 
+ ```scala
+ val windowSpec=Window
+               .partitionBy("CustomerID","date")
+               .orderBy(col("quantity").desc)
+               .rowsBetween(Window.unboundedPreceding,Window.currentRow)
+ ```
+ 
+ Now, we use the aggreagation functions by passing column name. In addition,we indicate the window specification that defines to which frames of data this function will apply 
+ 
+ 
+ ```scala
+ val data=df_date.withColumn("maxAmount",max(col("Quantity")).over(windowSpec))
+ df.show(3)
+ ```
+
+
 
 
 
