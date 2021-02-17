@@ -13,8 +13,10 @@ Aggregation is the act of collecing something together and its type further divi
    called a frame. Each row can fall into one or more frames. If you look at a rolling average of stock price for every five days, some of rows representing a price for a specific day may end up in different frames.  
    
    
-- _grouping set_ is used to aggregate at multiple different levels. The sets are available as a primitive in SQL
-   and via rollups and cubes in DataFames
+- _Rollup_ is used to  option allows you to include extra rows that represent the subtotals.
+ For example,  a table "COFFEE_TB" contains the total orders across all dates and braches in the area. 
+
+
    
 - _cube_ allows you to specify one or more keys as well as more aggregation functions to transform the    
   value columns,which will be summarized across all combinations of columns.
@@ -134,7 +136,22 @@ As for spark 3.0 version, in parsing date using to_date(), you will be more like
  val data=df_date.withColumn("maxAmount",max(col("Quantity")).over(windowSpec))
  df.show(3)
  ```
+ 
+ 
+ 
+### 2.3 Roll up and Cube  
 
+:heavy_exclamation_mark:
+
+Groupign sets such as Roll-up and Cube need to requires an extra attention. Beacuse they are highly affected
+by null values for aggregating levels, without filteringout nulls, you would get incorrect results. 
+
+### 2.3.1 Rollup
+
+As previously mentioned, the "rollup" function is a special function of "group-by" in that they will generate
+an extra column with the total sum of values across the combinations of columns. 
+
+Let's suppose we decie to set 
 
 
 
