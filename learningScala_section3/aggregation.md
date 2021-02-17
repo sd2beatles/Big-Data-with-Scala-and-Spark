@@ -1,4 +1,4 @@
-## Aggregations
+## Aggregations   _______________________________________:black_nib:
 
 
 ### 1. Introduction
@@ -99,7 +99,7 @@ df.groupBy("InvoiceNo").agg("Quantity"->"avg", "Quantity"->"stddev_pop").show()
 ```
 
 
-### 2.2 Window Function 
+### 2.2  Window Function 
 
 
 
