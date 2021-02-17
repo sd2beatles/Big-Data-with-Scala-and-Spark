@@ -21,12 +21,12 @@ Aggregation is the act of collecing something together and its type further divi
   
 ### 2.Types 
 
-2.1 Aggregation Functions
+#### 2.1 Aggregation Functions
 
 Think of df as a dataframe object and in the following sections we will apply a variety of aggreation functions 
 to retrieve the result we may use in data analysis.
 
-2.1.1 count() 
+#### 2.1.1 count() 
 
 selectedColName is the one we specify to count. 
 
@@ -35,13 +35,13 @@ df.select(selectedColName).count()
 
 ```
 
-2.1.2 distinct().count()
+#### 2.1.2 distinct().count()
 
 ```scala
 df.select(selectedColName).distinct().count()
 ```
 
-2.1.3 first and last
+#### 2.1.3 first and last
   
 To list the two results in the same row simultaneously, we need to deploy another trick to make it work out.  The extra function to execute is "agg".
 Additionally, if you decide to name each result, alias function should be appended right after the named function. 
@@ -50,19 +50,19 @@ Additionally, if you decide to name each result, alias function should be append
 df.agg(last(col(selectedColName).alias("last"),first(col(selectedColName).alias("first")).show()
 ```
 
-2.1.4 max and min
+#### 2.1.4 max and min
 
  ```scala
 df.agg(max(col(selectedColName).alias("maxValue"),min(col(selectedColName).alias("minValue")).show()
 ```
 
-2.1.5 sum
+#### 2.1.5 sum
 There are two occasions where we normally use the sum function 
 
 - Total sum of one specified column 
+
 ```scala
 df.groupBy().sum(specifiedColName).show()
-
 ```
 
 - Total sum of qautitative Column according to every member of qualitative one
@@ -71,7 +71,7 @@ df.groupBy().sum(specifiedColName).show()
 df.groupBy(qualitativeCol).sum(quantitativeCol).show()
 ```
 
-2.1.6 Aggregating to _Complex Types_
+#### 2.1.6 Aggregating to _Complex Types_
 
 Not only are aggrating functions performed on numberical values but also
 on complex types. In our example, we can collect a list of values present in a given
@@ -81,12 +81,12 @@ column or the only unique values by collecting to a set.
 df.agg(collect_set(selectedColName),collect_list("Country")).show()
 ```
 
-2.1.7 Grouping with Maps
+#### 2.1.7 Grouping with Maps
 
 If you want your trasnfomrations as a series of Maps for which they key is column and the value is the aggreation
 function that you would like to perform.
 
-``scala
+```scala
 df.groupBy(qualitativeColumn).agg(quantitativeColumn->aggfunction,quantitativeColumn2->aggfunction2).show()
 ```
 For example, if you decide to compute average and standard deviation of "quatative" column according to "InvoiceNo",
