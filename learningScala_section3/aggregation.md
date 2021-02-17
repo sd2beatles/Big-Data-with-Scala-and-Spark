@@ -9,7 +9,9 @@ Aggregation is the act of collecing something together and its type further divi
  
 - _window_ acts in a similar manner but the rows input to the function are somehow related to the current row
   .That is, a window function computes a return value for every input row of a table based on a group of rows
-   called a frame. 
+   called a frame. Each row can fall into one or more frames. If you look at a rolling average of stock price for every five days, some of rows representing a price for a specific day may end up in different frames.  
+   
+   
 - _grouping set_ is used to aggregate at multiple different levels. The sets are available as a primitive in SQL
    and via rollups and cubes in DataFames
    
