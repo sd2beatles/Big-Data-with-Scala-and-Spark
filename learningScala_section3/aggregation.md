@@ -16,13 +16,13 @@ Aggregation is the act of collecing something together and its type further divi
  While group-by function relates to an aggregation on a set of columns with those values in those columns
 ,groupign sets is aggregation across multiple groups. Its types further divide into rollup and cube.  
    - _Rollup_ is simply defined as a multidimensional aggregation that performs  a variety of group-by style calculations for us.
-   - _cube_ allows you to specify one or more keys as well as more aggregation functions to transform the    
-  value columns,which will be summarized across all combinations of columns.
+   - _cube_  is to perform aggregation functions across all combinations of columns 
+   
   
 
 
   
-### 2.Types  _______________________________________:black_nib:
+### 2.Types  ______________________________________________________:black_nib:
 
 #### 2.1 Aggregation Functions
 
@@ -148,7 +148,7 @@ by null values for aggregating levels, without filteringout nulls, you would get
 
 As previously mentioned, the "rollup" function is a special function of "group-by" in that they will generate an extra column with the total sum of values across the combinations of columns. 
 
-Suppose we have three coulumns and hope to find out the totalQuantity according to date and Country as well as the total quantity across the combinations.
+Suppose we have three coulumns,date,country,and quantity. Your main interest is to compute the grand sum of quantity over all dates, the grand sum for each date and the subtotal for each country on each date
 
 ```scala
 //make sure that you get rid of all null values before proceeding to the next stage
@@ -161,9 +161,51 @@ val rollUp=dfNotNull
 df.rollUp.show()
 ```
 
+
 ### 2.3.2 Cube
 
+Let's conitnue with the previous case. This time, not only will a cube go by date over the entire time period,but also the country. So here are the resulting outcomes we expect from cube function
 
+- Total sum across all dates and countries
+- Total sum for each date across all coutries
+- The toal for each country across all dates 
+- The toal for each country on each date
+
+```scala
+
+  val dfNotNull=dfDate.drop()
+  val cube=dfNotNull
+    .cube("date","Country")
+    .agg(sum("Quantity"))
+    .withColumnRenamed("sum(Quantity)","totalQuantity")
+    .select("date","Country","totalQuantity")
+    .orderBy(col("date").desc)
+```
+
+### 3.Pivot
+
+Pivot makes it possible for you to convert a row into a column. In ourcse current data, we have a Country
+column.With a pivot, we can aggreagate accoring to some functions for each of those given countries. 
+
+```scala
+
+val pivoted=dfDatte.groupBy("date").pivot("Country").sum()
+
+```
+
+![image](https://user-images.githubusercontent.com/53164959/108301407-4a201c80-71e5-11eb-949f-dde7b7b6c905.png)
+
+
+
+### 4. User-Defined Aggregation Functions
+
+UDFAs are a way for users to define thier own aggregation functions based on custom formulae or business rules. To create a UDAF, we must inherit from the UserDefinedAggregateFunctions base calss and implements the
+fllowing methods;
+
+
+![image](https://user-images.githubusercontent.com/53164959/108301700-e518f680-71e5-11eb-8f19-bf35e66e6f9f.png)
+
+:orange_book: Source from _Spark:The Definitive Guide Book_
 
 
 
