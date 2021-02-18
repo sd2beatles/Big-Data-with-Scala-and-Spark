@@ -197,15 +197,8 @@ val pivoted=dfDatte.groupBy("date").pivot("Country").sum()
 
 
 
-### 4. User-Defined Aggregation Functions
+### 4. Aggregator
 
-UDFAs are a way for users to define thier own aggregation functions based on custom formulae or business rules. To create a UDAF, we must inherit from the UserDefinedAggregateFunctions base calss and implements the
-fllowing methods;
-
-
-![image](https://user-images.githubusercontent.com/53164959/108301700-e518f680-71e5-11eb-8f19-bf35e66e6f9f.png)
-
-:orange_book: Source from _Spark:The Definitive Guide Book_
 
 
 
