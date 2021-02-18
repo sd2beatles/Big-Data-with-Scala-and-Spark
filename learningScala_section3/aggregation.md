@@ -12,13 +12,11 @@ Aggregation is the act of collecing something together and its type further divi
   .That is, a window function computes a return value for every input row of a table based on a group of rows
    called a frame. Each row can fall into one or more frames. If you look at a rolling average of stock price for every five days, some of rows representing a price for a specific day may end up in different frames.  
    
-   
-- _Rollup_ is used to  option allows you to include extra rows that represent the subtotals.
- For example,  a table "COFFEE_TB" contains the total orders across all dates and braches in the area. 
-
-
-   
-- _cube_ allows you to specify one or more keys as well as more aggregation functions to transform the    
+- Grouping Sets 
+ While group-by function relates to an aggregation on a set of columns with those values in those columns
+,groupign sets is aggregation across multiple groups. Its types further divide into rollup and cube.  
+   - _Rollup_ is simply defined as a multidimensional aggregation that performs  a variety of group-by style calculations for us.
+   - _cube_ allows you to specify one or more keys as well as more aggregation functions to transform the    
   value columns,which will be summarized across all combinations of columns.
   
 
@@ -148,10 +146,24 @@ by null values for aggregating levels, without filteringout nulls, you would get
 
 ### 2.3.1 Rollup
 
-As previously mentioned, the "rollup" function is a special function of "group-by" in that they will generate
-an extra column with the total sum of values across the combinations of columns. 
+As previously mentioned, the "rollup" function is a special function of "group-by" in that they will generate an extra column with the total sum of values across the combinations of columns. 
 
-Let's suppose we decie to set 
+Suppose we have three coulumns and hope to find out the totalQuantity according to date and Country as well as the total quantity across the combinations.
+
+```scala
+//make sure that you get rid of all null values before proceeding to the next stage
+val ddfNotNull=df.drop()
+val rollUp=dfNotNull
+    .rollup("date", "Country")
+    .agg(sum("Quantity"))
+    .withColumnRenamed("sum(Quantity)","totalQuantity")
+    .select("date","Country","totalQuantity")
+df.rollUp.show()
+```
+
+### 2.3.2 Cube
+
+
 
 
 
