@@ -1,7 +1,7 @@
 ## Aggregations  
 
 
-### 1. Introduction  _______________________________________:black_nib:
+### 1. Introduction  ________________________________________________:black_nib:
 
 Aggregation is the act of collecing something together and its type further divides into the following types
 
