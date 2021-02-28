@@ -4,7 +4,7 @@ Structured streaming is responsible for running your queries "incrementally"(ie 
 This is a streaming processing framework built on the _spark SQL engine_. Therfore, strcutured streaming uses the existing 
 structured API in spark (DataFrame,Datasets,SQL), implies that all the opertions we are often familar with are supported. 
 
-The main idea behind this framework is to treat a stream of data as a table to which data is continously appended. Its job inclues chekcing for the new input data,processing it,updating some internal state, and updating its result. Internally, Structured Streaming figures out how to incrementalize your query and run it in a fault-tolerant manner.
+The main idea behind this framework is to treat a stream of data as a table to which data is continously appended. Its job indluces chekcing for the new input data,processing it,updating some internal state, and updating its result. 
 
 
 2. Core Concepts __________________________________________________________________:black_nib:
@@ -31,6 +31,23 @@ The main idea behind this framework is to treat a stream of data as a table to w
    - Complete(rewrite the full output)
 
 - Tirggers:
+  Triggers define when structured streaming should check for new input and update its result. By deafult, the framework look for input
+  records as it has finished processing the last group of input data. This gives a lowest latency possible for new results. However, this
+  behavior leads to many small output files if the sink is a set of files. Thus, spark alos supports triggers based on processing time(only 
+  look for new data at a fixed interval)
+  
+ - Event-time Processing:
+   
+   Event time means processing data according to the time that it was generated rather than the when it reached your system. Since the system
+   views the input data as a table, the even time is just another field in the table.
+   
+
+ - Watermarks 
+ 
+   When structured streaming process knows that one of your columns is an event-time field, it can take some special actions such as optimizing    query execution or determing when it is safe to forget about a time window. Many of these actions can be controlled by woater marks.
+   Virtaully, it determines _how late streaming systems see data in event time._ 
+   System that supports event time allow setting watermarks to limit how long they remember old data. 
+
   
 
 
