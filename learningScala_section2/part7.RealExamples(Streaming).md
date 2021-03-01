@@ -3,6 +3,7 @@
 Create a directory,name it at your disposal,and copy the logfile in it. Ultimately, your aim is to see if your streaming applicaton picks it up and process it. In the application, you need to include SQL operations to parse out the data from those log lines using regular
 expressions and group thigs together over some window if you want to. Finally, stream out the ouput to your main console. 
 
+## Answer
 ```scala
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
